@@ -1,23 +1,24 @@
 import pygame as pg
 import pygame_menu
-from pygame.locals import *
+#from pygame.locals import *
 
-# Initialisation pygame
 pg.init()
 
 WIDTH = 600
 HEIGHT = 600
-BACKGROUND_COLOR = (255, 255, 255)
-LINE_COLOR = (100, 100, 100)
-GREY = (127, 127, 127)
+BACKGROUND_COLOR = (28, 170, 156)
+LINE_COLOR = (23, 145, 135)
 clock = pg.time.Clock()
 fenetre = pg.display.set_mode((WIDTH, HEIGHT))
 fenetre.fill(BACKGROUND_COLOR)
+current_player = 1
+game_board = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]  # Représentation du plateau de jeu
 pg.display.set_caption("Tic Tac Toe")
 
 def menu():  
     main_menu = pygame_menu.Menu(width=400, height=300, title='Tic Tac Toe', theme=pygame_menu.themes.THEME_BLUE)
-    main_menu.add.button('Jouer', jeux)
+    main_menu.add.button('Joueur contre Joueur', jeux)
+    main_menu.add.button('Joueur contre IA')
     main_menu.add.button('Quitter', pygame_menu.events.EXIT) 
     main_menu.mainloop(fenetre)
 
@@ -29,7 +30,7 @@ def retour_menu():
 
 def jeux():
     # Boucle de jeu
-    fenetre.fill(GREY)
+    fenetre.fill(BACKGROUND_COLOR)
     running = True
     while running:
         for event in pg.event.get():
@@ -61,6 +62,7 @@ def jeux():
             afficher_victoire(victoire())
             retour_menu()
             running = False
+           
         elif partie_nulle():
             print("Partie nulle")
             afficher_nulle()
@@ -75,20 +77,17 @@ def jeux():
 
 # Création de la grille
 def creation_grille():
-    pg.draw.line(fenetre, LINE_COLOR, (200, 0), (200, 600), 5)
-    pg.draw.line(fenetre, LINE_COLOR, (400, 0), (400, 600), 5)
-    pg.draw.line(fenetre, LINE_COLOR, (0, 200), (600, 200), 5)
-    pg.draw.line(fenetre, LINE_COLOR, (0, 400), (600, 400), 5)
+    pg.draw.line(fenetre, LINE_COLOR, (200, 0), (200, 600), 15)
+    pg.draw.line(fenetre, LINE_COLOR, (400, 0), (400, 600), 15)
+    pg.draw.line(fenetre, LINE_COLOR, (0, 200), (600, 200), 15)
+    pg.draw.line(fenetre, LINE_COLOR, (0, 400), (600, 400), 15)
 
 def dessin_croix(x, y):
-    pg.draw.line(fenetre, (0, 0, 0), (x*200+50, y*200+50), (x*200+150, y*200+150), 5)
-    pg.draw.line(fenetre, (0, 0, 0), (x*200+50, y*200+150), (x*200+150, y*200+50), 5)
+    pg.draw.line(fenetre, (66, 66, 66), (x*200+50, y*200+50), (x*200+150, y*200+150), 5)
+    pg.draw.line(fenetre, (66, 66, 66), (x*200+50, y*200+150), (x*200+150, y*200+50), 5)
 
 def dessin_rond(x, y):
-    pg.draw.circle(fenetre, (0, 0, 0), (x*200+100, y*200+100), 50, 5)
-
-current_player = 1
-game_board = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]  # Représentation du plateau de jeu
+    pg.draw.circle(fenetre, (239, 231, 200), (x*200+100, y*200+100), 50, 5)
 
 def placer_symbole(x, y):
     global current_player
@@ -108,17 +107,59 @@ def victoire():
     # Vérifier les lignes
     for i in range(3):
         if game_board[i][0] == game_board[i][1] == game_board[i][2] != 0: # Vérifier si les 3 cases de la ligne sont identiques et non vides # != 0 pour éviter les lignes vides
+            dessin_ligne_victoire_horizontal(ligne=i, joueur=game_board[i][0])
+            pg.display.flip()  # Mettre à jour l'écran une dernière fois
+            pg.time.wait(500)  # Pause d'une demi-seconde 
             return game_board[i][0] # [i] = Ligne # [i][0] = 1ère case de la ligne # [i][1] = 2ème case de la ligne # [i][2] = 3ème case de la ligne 
     # Vérifier les colonnes
     for i in range(3):
         if game_board[0][i] == game_board[1][i] == game_board[2][i] != 0:
+            dessin_ligne_victoire_vertical(colonne=i, joueur=game_board[0][i])
+            pg.display.flip()  # Mettre à jour l'écran une dernière fois
+            pg.time.wait(500)  
             return game_board[0][i]
     # Vérifier les diagonales
     if game_board[0][0] == game_board[1][1] == game_board[2][2] != 0:
+        dessin_ligne_victoire_diagonale1(joueur=game_board[0][0])
+        pg.display.flip()  
+        pg.time.wait(500) 
         return game_board[0][0]
     if game_board[0][2] == game_board[1][1] == game_board[2][0] != 0:
+        dessin_ligne_victoire_diagonale2(joueur=game_board[0][2])
+        pg.display.flip()  
+        pg.time.wait(500)  
         return game_board[0][2]
     return 0
+
+def dessin_ligne_victoire_vertical(colonne, joueur):
+    posX = colonne * 200 + 100
+    if joueur == 1:
+        couleur = (255, 0, 0)
+    else:
+        couleur = (0, 0, 255)
+    pg.draw.line(fenetre, couleur, (posX, 15), (posX, 585), 5)
+
+def dessin_ligne_victoire_horizontal(ligne, joueur):
+    posY = ligne * 200 + 100
+    if joueur == 1:
+        couleur = (255, 0, 0)
+    else:
+        couleur = (0, 0, 255)
+    pg.draw.line(fenetre, couleur, (15, posY), (585, posY), 5)
+
+def dessin_ligne_victoire_diagonale1(joueur):
+    if joueur == 1:
+        couleur = (255, 0, 0)
+    elif joueur == 2:
+        couleur = (0, 0, 255)
+    pg.draw.line(fenetre, couleur, (15, 15), (585, 585), 5)
+
+def dessin_ligne_victoire_diagonale2(joueur):
+    if joueur == 1:
+        couleur = (255, 0, 0)
+    elif joueur == 2:
+        couleur = (0, 0, 255)
+    pg.draw.line(fenetre, couleur, (15, 585), (585, 15), 5)
 
 def afficher_victoire(joueur):
     font = pg.font.Font(None, 36)  # Charge une police de taille 36 (vous pouvez changer cela)
@@ -136,12 +177,12 @@ def afficher_victoire(joueur):
     attente = True
     while attente:
         temps = pg.time.get_ticks() - temps_actuel
-        if temps > 2000:  # 2000 millisecondes (2 secondes)
+        if temps > 500:  # 2000 millisecondes (2 secondes)
             attente = False
 
 def partie_nulle():
     for i in range(3):
-        for j in range(3):
+        for j in range(3): 
             if game_board[i][j] == 0:
                 return False
     return True
@@ -156,9 +197,8 @@ def afficher_nulle():
     attente = True
     while attente:
         temps = pg.time.get_ticks() - temps_actuel
-        if temps > 2000:
+        if temps > 1000:
             attente = False
 
 
 menu()
-
