@@ -1,6 +1,8 @@
 import pygame as pg
 import pygame_menu
 #from pygame.locals import *
+import os
+import ia
 
 pg.init()
 
@@ -18,7 +20,7 @@ pg.display.set_caption("Tic Tac Toe")
 def menu():  
     main_menu = pygame_menu.Menu(width=400, height=300, title='Tic Tac Toe', theme=pygame_menu.themes.THEME_BLUE)
     main_menu.add.button('Joueur contre Joueur', jeux)
-    main_menu.add.button('Joueur contre IA')
+    main_menu.add.button('Joueur contre IA', jeux_ia)
     main_menu.add.button('Quitter', pygame_menu.events.EXIT) 
     main_menu.mainloop(fenetre)
 
@@ -75,7 +77,6 @@ def jeux():
         pass
     pg.quit()
 
-# Création de la grille
 def creation_grille():
     pg.draw.line(fenetre, LINE_COLOR, (200, 0), (200, 600), 15)
     pg.draw.line(fenetre, LINE_COLOR, (400, 0), (400, 600), 15)
@@ -199,6 +200,9 @@ def afficher_nulle():
         temps = pg.time.get_ticks() - temps_actuel
         if temps > 1000:
             attente = False
+
+def jeux_ia():
+    os.system("python ia.py")
 
 
 menu()
